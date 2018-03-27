@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+0.1.1
+-----
 #. transformations.py added.
 #. exception_handlers.py added.
 #. middleware.py added.
