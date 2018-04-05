@@ -105,7 +105,8 @@ def list_entry(model: typing.Type[SqlAlchemyModel], **kwargs) -> typing.List[Sql
 
     Finally returns a list of SQLAlchemy model instances.
     """
-    query = model.query
+    from sqlalchemy import func
+    query = db.session.query(model, func.count().over().label("x_total_count"))
     ids = kwargs["query"].get("ids")
     if ids:
         # Need to do some more work to handle composite PKs. Pass the set of
