@@ -192,8 +192,13 @@ def transform(
             ) for key in instance.__table__.columns.keys()
         }
         data = api_model.from_dict(transformer.apply(data))
+
+    # If there is a count alter the return type to be a tuple. Allows the
+    # addition of headers to connexion responses without extra work needing to
+    # be done.
     if count:
-        data = [{"x_total_count": count}, data]
+        data = data, 200, {"X-Total-Count": count}
+
     return data
 
 
