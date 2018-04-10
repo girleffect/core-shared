@@ -196,7 +196,10 @@ def transform(
     # If there is a count alter the return type to be a tuple. Allows the
     # addition of headers to connexion responses without extra work needing to
     # be done.
-    if count:
+    # TODO Look into building response tuple in the controllers. Initially
+    # added here, as it will work with both access-control and user-data-store
+    # without needing to change anything in their respective code base.
+    if count is not None:
         data = data, 200, {"X-Total-Count": count}
 
     return data
