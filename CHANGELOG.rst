@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.2
+-----
+#. Refactor list action return value, from list to tuple. Tuple contains list of objects and dictionary containing total count.
+#. Added decorator to alter list controller return values to be connexion valid response tuple.
+
 0.1.1
 -----
 #. transformations.py added.

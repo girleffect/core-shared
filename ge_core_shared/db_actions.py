@@ -1,7 +1,7 @@
 import typing
 
+from sqlalchemy import func
 
-# TODO On dependent apps
 from project import settings
 from project.settings import SQLALCHEMY_DB as db
 from project.settings import ACTION_MODELS as models
@@ -105,7 +105,7 @@ def list_entry(model: typing.Type[SqlAlchemyModel], **kwargs) -> typing.List[Sql
 
     Finally returns a list of SQLAlchemy model instances.
     """
-    query = model.query
+    query = db.session.query(model, func.count().over().label("x_total_count"))
     ids = kwargs["query"].get("ids")
     if ids:
         # Need to do some more work to handle composite PKs. Pass the set of
@@ -128,6 +128,7 @@ def list_entry(model: typing.Type[SqlAlchemyModel], **kwargs) -> typing.List[Sql
     # SqlAlchemyModel.column)...
     for column in kwargs["query"]["order_by"]:
         query = query.order_by(getattr(model, column))
+
     return query.offset(
         kwargs["query"].get("offset", 0)
     ).limit(
@@ -164,16 +165,20 @@ def transform(
     # Grab model name from the SQLAlchemy model class, as this transforms from
     # DB to API.
     model_name = instance.__class__.__name__ \
-        if not is_list else instance[0].__class__.__name__
+        if not is_list else instance[0][0].__class__.__name__
     transformer = getattr(
         mappings, "DB_TO_API_%s_TRANSFORMATION" % model_name.upper()
     )
 
-    # TODO look at instance.__dict__ later, seems to not always provide the
-    # expected dict.
+    # If count gets set, make a change to the data structure. Needed to allow
+    # response to set count header based on the response data.
+    count = None
     if is_list:
+        # Lists return a list of tuples, [(<model_instance>, int),]
         data = []
+        count = instance[0][1]
         for obj in instance:
+            obj = obj[0]
             obj_data = {
                 key: getattr(obj, key) for key in obj.__table__.columns.keys()
             }
@@ -187,6 +192,13 @@ def transform(
             ) for key in instance.__table__.columns.keys()
         }
         data = api_model.from_dict(transformer.apply(data))
+
+    # If there is a count alter the return type to be a tuple. Tuple to return
+    # ([<ApiModelInstance>, ...], <headers_dict>)
+    # Required to add headers to responses.
+    if count is not None:
+        data = data, {"X-Total-Count": count}
+
     return data
 
 
