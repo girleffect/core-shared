@@ -193,9 +193,9 @@ def transform(
         }
         data = api_model.from_dict(transformer.apply(data))
 
-    # If there is a count alter the return type to be a tuple. Allows the
-    # addition of headers to connexion responses without extra work needing to
-    # be done.
+    # If there is a count alter the return type to be a tuple. Tuple to return
+    # ([<ApiModelInstance>, ...], <headers_dict>)
+    # Required to add headers to responses.
     if count is not None:
         data = data, {"X-Total-Count": count}
 
