@@ -158,7 +158,7 @@ def transform(
     if instance is None:
         return None
     elif instance == []:
-        return []
+        return [], {"X-Total-Count": 0}
 
     is_list = isinstance(instance, list)
 
