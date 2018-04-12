@@ -117,7 +117,9 @@ def list_entry(model: typing.Type[SqlAlchemyModel], **kwargs) -> typing.List[Sql
             for key, _id in ids.items():
                 if _id is not None:
                     query = query.filter(
-                        getattr(model, key) == _id
+                        getattr(model, key).in_(
+                            _id if isinstance(_id, list) else [_id]
+                        )
                     )
         else:
             query = query.filter(model.id.in_(ids))
