@@ -1,11 +1,13 @@
+import importlib
 import typing
 
 from sqlalchemy import func
 
 from project import settings
-from project.settings import SQLALCHEMY_DB as db
-from project.settings import ACTION_MODELS as models
-from project.settings import ACTION_MAPPINGS as mappings
+from project.app import DB as db
+
+models = importlib.import_module(settings.ACTION_MODELS)
+mappings = importlib.import_module(settings.ACTION_MAPPINGS)
 
 ApiModel = typing.TypeVar("ApiModel")
 SqlAlchemyModel = typing.TypeVar("SqlAlchemyModel")
