@@ -3,7 +3,7 @@ import typing
 from sqlalchemy import func
 
 from project import settings
-from project.settings import SQLALCHEMY_DB as db
+from project.app import DB as db
 from project.settings import ACTION_MODELS as models
 from project.settings import ACTION_MAPPINGS as mappings
 

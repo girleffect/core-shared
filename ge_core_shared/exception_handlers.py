@@ -1,7 +1,7 @@
 import logging
 import json
 
-from project.settings import SQLALCHEMY_DB as db
+from project.app import DB as db
 
 logger = logging.getLogger(__name__)
 
