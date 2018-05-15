@@ -50,14 +50,15 @@ class Transformation(object):
     """
     A transformation is a list of Mappings that can be applied to a dictionary.
     """
-    def __init__(self, mappings: [Mapping] = list(),
-                 copy_fields: [str] = list()):
+    def __init__(self, mappings: [Mapping] = None,
+                 copy_fields: [str] = None):
         """
         :param mappings: Mappings for fields
         :param copy_fields: Convenience mechanism for fields that should
         only be copied.
         """
-        self._mappings = mappings
+        copy_fields = copy_fields or []
+        self._mappings = mappings or []
         self._mappings.extend([Mapping(field) for field in copy_fields])
 
         # Verify that there are no duplicate input field names specified
