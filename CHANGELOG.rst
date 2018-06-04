@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.1.0
+-----
+Added support for unprotected API end-points.
+
+1.0.1
+-----
+Fixed bug in Transformation constructor, which used a mutable default function parameter.
+
 0.1.2
 -----
 #. Refactor list action return value, from list to tuple. Tuple contains list of objects and dictionary containing total count.
