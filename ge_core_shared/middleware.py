@@ -16,7 +16,7 @@ class AuthMiddleware(object):
     def __call__(self, environ, start_response):
         request = Request(environ)
 
-        # Some paths do not need an authorized user.
+        # Some paths do not need an authorization key.
         if request.path in UNPROTECTED_API_ENDPOINTS:
             return self.app(environ, start_response)
 
