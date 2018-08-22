@@ -43,13 +43,13 @@ class MetricsDecorator:
                     # specified. Some of the functions in the module may have been
                     # imported from other modules. These are ignored.
                     if obj.__module__ == self.module_.__name__:
-                        logger.info(f"Adding metrics to {self.module_}:{name}")
+                        print(f"Adding metrics to {self.module_}:{name}")
                         setattr(self.module_, name, self._prometheus_module_metric_decorator(obj))
                     else:
-                        logger.info(f"No metrics on {self.module_}:{name} because it belongs to another "
+                        print(f"No metrics on {self.module_}:{name} because it belongs to another "
                                      f"module")
                 else:
-                    logger.info(f"No metrics on {self.module_}:{name} because it is not a coroutine or "
+                    print(f"No metrics on {self.module_}:{name} because it is not a coroutine or "
                                  f"function")
 
 def list_response(func):
