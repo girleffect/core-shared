@@ -25,6 +25,7 @@ class Decorators:
 
         return [<ApiModelInstance>, ...], <http_status_code>, <headers_dict>
         """
+        @functools.wraps(f)
         def wrapper(*args, **kwargs):
             list_data = f(*args, **kwargs)
             return list_data[0], 200, list_data[1]
