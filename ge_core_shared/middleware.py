@@ -36,23 +36,25 @@ class AuthMiddleware(object):
         return response(environ, start_response)
 
 
-class MetricMiddleware(object):
+def metric_middleware(app, service_name):
+    """
+    Middleware to add Prometheus metrics for request durations.
+    :param app: The flask app to which to add the middleware.
+    :param service_name: The name of the service the metrics fall under.
+    """
+    H = Histogram(f"{service_name}_http_duration_seconds", "API duration",
+          ["path_prefix", "method", "status"])
 
-    def __init__(self, app, prefix):
-        self.app = app
-        self.H = Histogram(f"{prefix}_http_duration_seconds", "API duration",
-              ["path_prefix", "method", "status"])
-        self.app.before_request(self.start_timer)
-        self.app.after_request(self.stop_timer)
-
-    @staticmethod
     def start_timer():
         flask_request.start_time = time.time()
 
-    def stop_timer(self, response):
+    def stop_timer(response):
         resp_time = time.time() - flask_request.start_time
-        self.H.labels(
+        H.labels(
             path_prefix=flask_request.path.split("/")[1],
             method=flask_request.method,
             status=response.status).observe(resp_time)
         return response
+
+    app.before_request(start_timer)
+    app.after_request(stop_timer)
