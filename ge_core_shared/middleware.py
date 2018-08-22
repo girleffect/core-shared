@@ -1,4 +1,8 @@
+import time
+
 from werkzeug.wrappers import Request, Response
+
+from prometheus_client import Histogram
 
 from project.settings import ALLOWED_API_KEYS, API_KEY_HEADER
 
@@ -28,3 +32,21 @@ class AuthMiddleware(object):
         # Deny the API call.
         response = Response("Unauthorized", status="401")
         return response(environ, start_response)
+
+
+class MetricMiddleware(object):
+
+    def __init__(self, app, prefix):
+        self.app = app
+        self.H = Histogram(f"{prefix}_http_duration_seconds", "API duration",
+              ["path_prefix", "method", "status"])
+
+    def __call__(self, environ, start_response):
+        request = Request(environ)
+        start_time = time.time()
+        response = self.app(environ, start_response)
+        self.H.labels(
+            path_prefix=request.path.split("/")[1],
+            method=request.method,
+            status=response.status).observe(time.time()-start_time)
+        return response
