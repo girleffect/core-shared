@@ -50,6 +50,9 @@ def metric_middleware(app, service_name):
 
     def stop_timer(response):
         resp_time = time.time() - flask_request.start_time
+        print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        print(response)
+        print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
         H.labels(
             path_prefix=flask_request.path.split("/")[1],
             method=flask_request.method,
