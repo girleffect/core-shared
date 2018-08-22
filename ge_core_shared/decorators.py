@@ -34,10 +34,6 @@ class MetricsDecorator:
     def decorate_all_in_module(self):
         """
         Decorate all functions in a module with the specified decorator
-        :param module_: The module to interrogate
-        :param decorator: The decorator to apply
-        :param whitelist: Functions not to be decorated.
-        :param H: The Prometheus Histogram object.
         """
         for name in dir(self.module_):
             if name not in self.whitelist:
@@ -47,13 +43,13 @@ class MetricsDecorator:
                     # specified. Some of the functions in the module may have been
                     # imported from other modules. These are ignored.
                     if obj.__module__ == self.module_.__name__:
-                        logger.debug(f"Adding metrics to {self.module_}:{name}")
+                        logger.info(f"Adding metrics to {self.module_}:{name}")
                         setattr(self.module_, name, self._prometheus_module_metric_decorator(obj))
                     else:
-                        logger.debug(f"No metrics on {self.module_}:{name} because it belongs to another "
+                        logger.info(f"No metrics on {self.module_}:{name} because it belongs to another "
                                      f"module")
                 else:
-                    logger.debug(f"No metrics on {self.module_}:{name} because it is not a coroutine or "
+                    logger.info(f"No metrics on {self.module_}:{name} because it is not a coroutine or "
                                  f"function")
 
 def list_response(func):
