@@ -14,14 +14,10 @@ except ImportError:
     UNPROTECTED_API_ENDPOINTS = set()
 
 
-class SharedMiddleware(object):
+class AuthMiddleware(object):
 
-    def __init__(self, app, prefix):
+    def __init__(self, app):
         self.app = app
-        self.H = Histogram(f"{prefix}_http_duration_seconds", "API duration",
-                           ["path_prefix", "method", "status"])
-        self.app.before_request(self.start_timer)
-        self.app.after_request(self.stop_timer)
 
     def __call__(self, environ, start_response):
         request = Request(environ)
@@ -38,6 +34,16 @@ class SharedMiddleware(object):
         # Deny the API call.
         response = Response("Unauthorized", status="401")
         return response(environ, start_response)
+
+
+class MetricMiddleware(object):
+
+    def __init__(self, app, prefix):
+        self.app = app
+        self.H = Histogram(f"{prefix}_http_duration_seconds", "API duration",
+              ["path_prefix", "method", "status"])
+        self.app.before_request(self.start_timer)
+        self.app.after_request(self.stop_timer)
 
     @staticmethod
     def start_timer():
