@@ -1,5 +1,7 @@
 import time
 
+from flask import request as flask_request
+
 from werkzeug.wrappers import Request, Response
 
 from prometheus_client import Histogram
@@ -40,13 +42,27 @@ class MetricMiddleware(object):
         self.app = app
         self.H = Histogram(f"{prefix}_http_duration_seconds", "API duration",
               ["path_prefix", "method", "status"])
+        self.app.before_request(self.start_timer)
+        self.app.after_request(self.stop_timer)
 
-    def __call__(self, environ, start_response):
-        request = Request(environ)
-        start_time = time.time()
-        response = self.app(environ, start_response)
+    # def __call__(self, environ, start_response):
+    #     request = Request(environ)
+    #     start_time = time.time()
+    #     response = self.app(environ, start_response)
+    #     self.H.labels(
+    #         path_prefix=request.path.split("/")[1],
+    #         method=request.method,
+    #         status=response.status).observe(time.time()-start_time)
+    #     return response
+
+    @staticmethod
+    def start_timer():
+        flask_request.start_time = time.time()
+
+    def stop_timer(self, response):
+        resp_time = time.time() - flask_request.start_time
         self.H.labels(
-            path_prefix=request.path.split("/")[1],
-            method=request.method,
-            status=response.status).observe(time.time()-start_time)
+            path_prefix=flask_request.path.split("/")[1],
+            method=flask_request.method,
+            status=response.status).observe(resp_time)
         return response

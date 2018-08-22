@@ -58,17 +58,16 @@ class Decorators:
                     # We only check functions that are defined in the module we
                     # specified. Some of the functions in the module may have been
                     # imported from other modules. These are ignored.
-                    print(obj.__module__)
                     if obj.__module__ == self.module_.__name__:
-                        print(f"Adding metrics to {self.module_}:{name}")
-                        setattr(self.module_, name, self._prometheus_module_metric_decorator(obj))
                         # Add list decorator if a list method
                         if name.endswith("_list"):
                             print(f"Adding list decorator to {self.module_}:{name}")
                             setattr(self.module_, name, self.list_response(obj))
+                        logger.debug(f"Adding metrics to {self.module_}:{name}")
+                        setattr(self.module_, name, self._prometheus_module_metric_decorator(obj))
                     else:
-                        print(f"No metrics on {self.module_}:{name} because it belongs to another "
+                        logger.debug(f"No metrics on {self.module_}:{name} because it belongs to another "
                                      f"module")
                 else:
-                    print(f"No metrics on {self.module_}:{name} because it is not a coroutine or "
+                    logger.debug(f"No metrics on {self.module_}:{name} because it is not a coroutine or "
                                  f"function")
