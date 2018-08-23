@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.1.1
+-----
+Added Metrics Middleware and Decorator for synchronous flask services.
+
 1.1.0
 -----
 Added support for unprotected API end-points.
