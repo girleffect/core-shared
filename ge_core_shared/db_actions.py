@@ -1,11 +1,13 @@
+import importlib
 import typing
 
 from sqlalchemy import func
 
 from project import settings
-from project.settings import SQLALCHEMY_DB as db
-from project.settings import ACTION_MODELS as models
-from project.settings import ACTION_MAPPINGS as mappings
+from project.app import DB as db
+
+models = importlib.import_module(settings.ACTION_MODELS)
+mappings = importlib.import_module(settings.ACTION_MAPPINGS)
 
 ApiModel = typing.TypeVar("ApiModel")
 SqlAlchemyModel = typing.TypeVar("SqlAlchemyModel")
@@ -117,7 +119,9 @@ def list_entry(model: typing.Type[SqlAlchemyModel], **kwargs) -> typing.List[Sql
             for key, _id in ids.items():
                 if _id is not None:
                     query = query.filter(
-                        getattr(model, key) == _id
+                        getattr(model, key).in_(
+                            _id if isinstance(_id, list) else [_id]
+                        )
                     )
         else:
             query = query.filter(model.id.in_(ids))
@@ -158,7 +162,7 @@ def transform(
     if instance is None:
         return None
     elif instance == []:
-        return []
+        return [], {"X-Total-Count": 0}
 
     is_list = isinstance(instance, list)
 
