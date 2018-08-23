@@ -11,36 +11,37 @@ class MetricDecoration:
 
     __instance = None
 
-    def __init__(self, module_, service_name, whitelist=None):
+    def __init__(self, modules, service_name, whitelist=None):
         if MetricDecoration.__instance:
             raise Exception("MetricDecoration instance exists: Singleton")
         else:
             MetricDecoration.__instance = self
-            self.module_ = module_
+            self.modules = modules
             self.H = Histogram(f"{service_name}_call_duration_seconds", "API call duration (s)",
               ["call"])
             self.whitelist = whitelist or []
 
-    def decorate_all_in_module(self):
+    def decorate_all_in_modules(self):
         """
         Decorate all functions in a module with the specified decorator
         """
-        for name in dir(self.module_):
-            if name not in self.whitelist:
-                obj = getattr(self.module_, name)
-                if isinstance(obj, FunctionType):
-                    # We only check functions that are defined in the module we
-                    # specified. Some of the functions in the module may have been
-                    # imported from other modules. These are ignored.
-                    if obj.__module__ == self.module_.__name__:
-                        logger.debug(f"Adding metrics to {self.module_}:{name}")
-                        setattr(self.module_, name, self._prometheus_module_metric_decorator(obj))
+        for module_ in self.modules:
+            for name in dir(module_):
+                if name not in self.whitelist:
+                    obj = getattr(module_, name)
+                    if isinstance(obj, FunctionType):
+                        # We only check functions that are defined in the module we
+                        # specified. Some of the functions in the module may have been
+                        # imported from other modules. These are ignored.
+                        if obj.__module__ == module_.__name__:
+                            logger.debug(f"Adding metrics to {module_}:{name}")
+                            setattr(module_, name, self._prometheus_module_metric_decorator(obj))
+                        else:
+                            logger.debug(f"No metrics on {module_}:{name} because it belongs to another "
+                                         f"module")
                     else:
-                        logger.debug(f"No metrics on {self.module_}:{name} because it belongs to another "
-                                     f"module")
-                else:
-                    logger.debug(f"No metrics on {self.module_}:{name} because it is not a coroutine or "
-                                 f"function")
+                        logger.debug(f"No metrics on {module_}:{name} because it is not a coroutine or "
+                                     f"function")
 
 
     def _prometheus_module_metric_decorator(self, f: FunctionType):
