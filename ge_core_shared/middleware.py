@@ -1,10 +1,8 @@
 import time
 
 from flask import request as flask_request
-
-from werkzeug.wrappers import Request, Response
-
 from prometheus_client import Histogram
+from werkzeug.wrappers import Request, Response
 
 from project.settings import ALLOWED_API_KEYS, API_KEY_HEADER
 
