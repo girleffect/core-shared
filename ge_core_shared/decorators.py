@@ -31,7 +31,7 @@ class Decorators:
             return list_data[0], 200, list_data[1]
         return wrapper
 
-    def _prometheus_module_metric_decorator(self, f: FunctionType):
+    def _response_decorator(self, f: FunctionType, is_list_response: bool):
         """
         A Prometheus decorator adding timing metrics to a function.
         This decorator will work on both asynchronous and synchronous functions.
@@ -44,7 +44,11 @@ class Decorators:
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             with self.H.labels(call=call_key).time():
-                return f(*args, **kwargs)
+                if is_list_response:
+                    list_data = f(*args, **kwargs)
+                    return list_data[0], 200, list_data[1]
+                else:
+                    return f(*args, **kwargs)
         return wrapper
 
     def decorate_all_in_module(self):
@@ -60,11 +64,10 @@ class Decorators:
                     # imported from other modules. These are ignored.
                     if obj.__module__ == self.module_.__name__:
                         logger.debug(f"Adding metrics to {self.module_}:{name}")
-                        setattr(self.module_, name, self._prometheus_module_metric_decorator(obj))
                         # Add list decorator if a list method
                         if name.endswith("_list"):
-                            logger.debug(f"Adding list decorator to {self.module_}:{name}")
-                            setattr(self.module_, name, self.list_response(obj))
+                            logger.debug(f"Adding list and metric decorator to {self.module_}:{name}")
+                        setattr(self.module_, name, self._response_decorator(obj, name.endswith("_list")))
                     else:
                         logger.debug(f"No metrics on {self.module_}:{name} because it belongs to another "
                                      f"module")
