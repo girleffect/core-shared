@@ -80,8 +80,9 @@ def _db_exception(f: FunctionType):
     return wrapper
 
 
-def decorate_test_class(klass: Type):
-    decorate_all_in_class(klass, _db_exception, [])
+def decorate_test_classes(klasses: list):
+    for klass in klasses:
+        decorate_all_in_class(klass, _db_exception, [])
 
 
 def decorate_all_in_class(klass: Type, decorator: FunctionType, whitelist: list):
