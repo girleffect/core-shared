@@ -2,6 +2,7 @@ import functools
 import logging
 
 from types import FunctionType
+from typing import Type
 
 from flask_sqlalchemy import SQLAlchemy
 from prometheus_client import Histogram
