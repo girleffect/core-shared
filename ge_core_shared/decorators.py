@@ -1,4 +1,5 @@
 import functools
+import inspect
 import logging
 
 from types import FunctionType
@@ -65,15 +66,15 @@ class MetricDecoration:
         return wrapper
 
 
-def _db_exception(f: FunctionType):
+def _db_exception(func: FunctionType):
     """
     Wrap a function with a try except to rollback a DB transaction on exception and raise.
     :param f: The function to be wrapped
     """
-    @functools.wraps(f)
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            return f(*args, **kwargs)
+            return func(*args, **kwargs)
         except Exception as e:
             DB.session.close_all()
             raise e
@@ -81,9 +82,20 @@ def _db_exception(f: FunctionType):
     return wrapper
 
 
-def decorate_test_classes(klasses: list):
-    for klass in klasses:
-        decorate_all_in_class(klass, _db_exception, [])
+def decorate_tests_in_directory(directory, whitelist: list):
+    """
+    Go through all tests found the directory and wrap their class functions.
+    :param directory: The directory to be looked in.
+    :param whitelist: The test modules to be omitted from the decoration.
+    """
+    for test in dir(directory):
+        if test not in whitelist:
+            obj = getattr(directory, test)
+            check = inspect.isclass(obj) \
+                and obj.__module__ == directory.__name__ \
+                and test.__name__.startswith("test")
+            if check:
+                decorate_all_in_class(obj, _db_exception, [])
 
 
 def decorate_all_in_class(klass: Type, decorator: FunctionType, whitelist: list):
