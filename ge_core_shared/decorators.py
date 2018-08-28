@@ -3,7 +3,10 @@ import logging
 
 from types import FunctionType
 
+from flask_sqlalchemy import SQLAlchemy
 from prometheus_client import Histogram
+
+DB = SQLAlchemy()
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +62,43 @@ class MetricDecoration:
             with self.H.labels(call=call_key).time():
                 return f(*args, **kwargs)
         return wrapper
+
+
+def _db_exception(f: FunctionType):
+    """
+    Wrap a function with a try except to rollback a DB transaction on exception and raise.
+    :param f: The function to be wrapped
+    """
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            DB.session.close_all()
+            raise e
+
+    return wrapper
+
+
+def decorate_test_class(klass: Type):
+    decorate_all_in_class(klass, _db_exception, [])
+
+
+def decorate_all_in_class(klass: Type, decorator: FunctionType, whitelist: list):
+    """
+    Decorate all functions in a class with the specified decorator
+    :param klass: The class to interrogate
+    :param decorator: The decorator to apply
+    :param whitelist: Functions not to be decorated.
+    """
+    for name in dir(klass):
+        if name not in whitelist:
+            obj = getattr(klass, name)
+            if isinstance(obj, FunctionType):
+                logger.debug(f"Adding metrics to {klass}:{name}")
+                setattr(klass, name, decorator(obj))
+            else:
+                logger.debug(f"No metrics on {klass}:{name} because it is not a function")
 
 
 def list_response(func):
