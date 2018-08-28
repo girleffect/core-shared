@@ -17,6 +17,6 @@ def db_exceptions(exception):
     error_type = errorcodes.lookup(exception.orig.pgcode)
     return json.dumps(
         {
-            "error": exception.orig.pgerror
+            "error": exception.orig.pgerror.replace("\n", " ")
         }
     ), PG_ERROR_STATUS_CODE_MAP.get(error_type, 500)
