@@ -2,7 +2,7 @@ import functools
 import inspect
 import logging
 
-from types import FunctionType
+from types import FunctionType, ModuleType
 from typing import Type
 
 from flask_sqlalchemy import SQLAlchemy
@@ -91,11 +91,18 @@ def decorate_tests_in_directory(directory, whitelist: list):
     for test in dir(directory):
         if test not in whitelist:
             obj = getattr(directory, test)
-            check = inspect.isclass(obj) \
-                and obj.__module__ == directory.__name__ \
-                and test.__name__.startswith("test")
-            if check:
-                decorate_all_in_class(obj, _db_exception, [])
+            if inspect.ismodule(obj) and test.__name__.startswith("test"):
+                decorate_classes_in_module(obj, _db_exception)
+
+
+def decorate_classes_in_module(module_: ModuleType, decorator: FunctionType):
+    """
+    Go through all classes in module to decorate all class functions.
+    :param module_: Module in question
+    """
+    for name in dir(module_):
+        if inspect.isclass(name) and name.__module__ == module_.__name__:
+            decorate_all_in_class(module_, decorator, [])
 
 
 def decorate_all_in_class(klass: Type, decorator: FunctionType, whitelist: list):
