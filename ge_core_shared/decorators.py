@@ -88,11 +88,12 @@ def decorate_tests_in_directory(directory, whitelist: list):
     :param directory: The directory to be looked in.
     :param whitelist: The test modules to be omitted from the decoration.
     """
-    for test in dir(directory):
-        if test not in whitelist:
-            obj = getattr(directory, test)
-            if inspect.ismodule(obj) and test.__name__.startswith("test"):
-                decorate_classes_in_module(obj, _db_exception)
+    if getattr(directory, "__all__"):
+        for test in directory.__all__:
+            if test not in whitelist:
+                obj = getattr(directory, test)
+                if inspect.ismodule(obj) and test.__name__.startswith("test"):
+                    decorate_classes_in_module(obj, _db_exception)
 
 
 def decorate_classes_in_module(module_: ModuleType, decorator: FunctionType):
