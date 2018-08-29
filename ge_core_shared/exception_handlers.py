@@ -20,7 +20,7 @@ def db_exceptions(exception):
     db.session.rollback()
     error_code = errorcodes.lookup(exception.orig.pgcode)
 
-    # Postgres errors are split into different classes, the class is obtainable
+    # Postgres errors are split into different classes, the class is obtained
     # from the first 2 characters in the postgres error code. This is useful if
     # there is a need to set a status code for an entire class rather than
     # specific errors. Classes can be found here:
