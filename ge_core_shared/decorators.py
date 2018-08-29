@@ -1,9 +1,7 @@
 import functools
-import inspect
 import logging
 
-from types import FunctionType, ModuleType
-from typing import Type
+from types import FunctionType
 
 from flask_sqlalchemy import SQLAlchemy
 from prometheus_client import Histogram
@@ -80,47 +78,6 @@ def _db_exception(func: FunctionType):
             raise e
 
     return wrapper
-
-
-def decorate_tests_in_directory(directory, whitelist: list):
-    """
-    Go through all tests found the directory and wrap their class functions.
-    :param directory: The directory to be looked in.
-    :param whitelist: The test modules to be omitted from the decoration.
-    """
-    if getattr(directory, "__all__"):
-        for test in directory.__all__:
-            if test not in whitelist:
-                obj = getattr(directory, test)
-                if inspect.ismodule(obj) and test.__name__.startswith("test"):
-                    decorate_classes_in_module(obj, _db_exception)
-
-
-def decorate_classes_in_module(module_: ModuleType, decorator: FunctionType):
-    """
-    Go through all classes in module to decorate all class functions.
-    :param module_: Module in question
-    """
-    for name in dir(module_):
-        if inspect.isclass(name) and name.__module__ == module_.__name__:
-            decorate_all_in_class(module_, decorator, [])
-
-
-def decorate_all_in_class(klass: Type, decorator: FunctionType, whitelist: list):
-    """
-    Decorate all functions in a class with the specified decorator
-    :param klass: The class to interrogate
-    :param decorator: The decorator to apply
-    :param whitelist: Functions not to be decorated.
-    """
-    for name in dir(klass):
-        if name not in whitelist:
-            obj = getattr(klass, name)
-            if isinstance(obj, FunctionType):
-                logger.debug(f"Adding metrics to {klass}:{name}")
-                setattr(klass, name, decorator(obj))
-            else:
-                logger.debug(f"No metrics on {klass}:{name} because it is not a function")
 
 
 def list_response(func):
