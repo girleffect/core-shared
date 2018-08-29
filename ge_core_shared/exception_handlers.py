@@ -14,9 +14,9 @@ PG_ERROR_STATUS_CODE_MAP = {
 def db_exceptions(exception):
     logger.error(exception)
     db.session.rollback()
-    error_type = errorcodes.lookup(exception.orig.pgcode)
+    error_code = errorcodes.lookup(exception.orig.pgcode)
     return json.dumps(
         {
             "error": exception.orig.pgerror.strip().replace("\n", " ")
         }
-    ), PG_ERROR_STATUS_CODE_MAP.get(error_type, 500)
+    ), PG_ERROR_STATUS_CODE_MAP.get(error_code, 500)
