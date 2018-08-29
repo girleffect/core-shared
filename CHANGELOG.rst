@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.1.2
+-----
+Update to db exception handler, allows for status code mapping to database errors.
+
 1.1.1
 -----
 Added Metrics Middleware and Decorator for synchronous flask services.
