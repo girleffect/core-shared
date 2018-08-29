@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.1.2
+-----
 Update to db exception handler, allows for status code mapping to database errors.
 
 1.1.1
