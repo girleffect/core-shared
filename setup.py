@@ -4,7 +4,7 @@ LONG_DESCRIPTION_FILES = ["README.rst", "AUTHORS.rst", "CHANGELOG.rst"]
 
 setup(
     name="core-shared",
-    version="1.1.2",
+    version="1.1.3",
     description="Girl Effect Core Shared",
     long_description="".join(open(filename, "r").read() for filename in LONG_DESCRIPTION_FILES),
     author="Praekelt Consulting",
