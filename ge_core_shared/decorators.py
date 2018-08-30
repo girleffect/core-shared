@@ -3,7 +3,10 @@ import logging
 
 from types import FunctionType
 
+from flask_sqlalchemy import SQLAlchemy
 from prometheus_client import Histogram
+
+DB = SQLAlchemy()
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +62,22 @@ class MetricDecoration:
             with self.H.labels(call=call_key).time():
                 return f(*args, **kwargs)
         return wrapper
+
+
+def db_exception(func: FunctionType):
+    """
+    Wrap a function with a try except to rollback a DB transaction on exception and raise.
+    :param f: The function to be wrapped
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            DB.session.close_all()
+            raise e
+
+    return wrapper
 
 
 def list_response(func):
