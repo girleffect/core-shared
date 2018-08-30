@@ -64,7 +64,7 @@ class MetricDecoration:
         return wrapper
 
 
-def _db_exception(func: FunctionType):
+def db_exception(func: FunctionType):
     """
     Wrap a function with a try except to rollback a DB transaction on exception and raise.
     :param f: The function to be wrapped
