@@ -1,10 +1,6 @@
 Changelog
 =========
 
-1.1.3
------
-Added db exception decorator to be used for flask SQLAlchemy based tests on services.
-
 1.1.2
 -----
 Update to db exception handler, allows for status code mapping to database errors.
