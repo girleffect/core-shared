@@ -206,14 +206,18 @@ def transform(
     return data
 
 
-def get_or_create(model, **kwargs):
+def get_or_create(model, defaults=None, **identifiers):
     """Django-like helper method to get or create objects.
+
+    The key-value pairs in identifiers are used for lookup purposes and
+    the key-value pairs in defaults are used when creating a model.
     """
-    instance = db.session.query(model).filter_by(**kwargs).first()
+    defaults = defaults or {}
+    instance = db.session.query(model).filter_by(**identifiers).first()
     if instance:
         return instance, False
-    else:
-        instance = model(**kwargs)
-        db.session.add(instance)
-        db.session.commit()
-        return instance, True
+
+    instance = model(**identifiers, **defaults)
+    db.session.add(instance)
+    db.session.commit()
+    return instance, True
