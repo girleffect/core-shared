@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.2.0
+-----
+The `get_or_create()` function now takes an extra `defaults` argument which is used to provide values for fields that needs to be populated on
+creation, but not used for lookups.
+
 1.1.3
 -----
 Added db exception decorator to be used for flask SQLAlchemy based tests on services.
