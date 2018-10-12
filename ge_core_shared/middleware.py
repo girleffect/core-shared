@@ -49,8 +49,9 @@ def metric_middleware(app, service_name):
     def stop_timer(response):
         resp_time = time.time() - flask_request.start_time
         path = flask_request.path.replace("/api/v1", "")
+        path_prefix = "not_found" if response.status == 404 else path.split("/")[1]
         H.labels(
-            path_prefix=path.split("/")[1],
+            path_prefix=path_prefix,
             method=flask_request.method,
             status=response.status).observe(resp_time)
         return response
