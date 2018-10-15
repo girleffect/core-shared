@@ -12,13 +12,10 @@ except ImportError:
     UNPROTECTED_API_ENDPOINTS = set()
 
 
-class AuthMiddleware(object):
+def auth_middleware(app, service_name):
 
-    def __init__(self, app):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        request = Request(environ)
+    def before_request():
+        request = flask_request
 
         # Some paths do not need an authorization key.
         if request.path in UNPROTECTED_API_ENDPOINTS:
@@ -26,12 +23,11 @@ class AuthMiddleware(object):
 
         # Check if key is present and known.
         key = request.headers.get(API_KEY_HEADER, None)
-        if key and key in ALLOWED_API_KEYS:
-            return self.app(environ, start_response)
+        if not key or key not in ALLOWED_API_KEYS:
+            # Deny the API call.
+            return Response("Unauthorized", status="401")
 
-        # Deny the API call.
-        response = Response("Unauthorized", status="401")
-        return response(environ, start_response)
+    app.before_request(before_request)
 
 
 def metric_middleware(app, service_name):
