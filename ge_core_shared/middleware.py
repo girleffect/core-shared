@@ -18,14 +18,12 @@ def auth_middleware(app, service_name):
         request = flask_request
 
         # Some paths do not need an authorization key.
-        if request.path in UNPROTECTED_API_ENDPOINTS:
-            return self.app(environ, start_response)
-
-        # Check if key is present and known.
-        key = request.headers.get(API_KEY_HEADER, None)
-        if not key or key not in ALLOWED_API_KEYS:
-            # Deny the API call.
-            return Response("Unauthorized", status="401")
+        if request.path not in UNPROTECTED_API_ENDPOINTS:
+            # Check if key is present and known.
+            key = request.headers.get(API_KEY_HEADER, None)
+            if not key or key not in ALLOWED_API_KEYS:
+                # Deny the API call.
+                return Response("Unauthorized", status="401")
 
     app.before_request(before_request)
 
