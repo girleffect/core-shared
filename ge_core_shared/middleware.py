@@ -49,7 +49,7 @@ def metric_middleware(app, service_name):
     def stop_timer(response):
         resp_time = time.time() - flask_request.start_time
         path = flask_request.path.replace("/api/v1", "")
-        path_prefix = self.denial_replacers.get(
+        path_prefix = denial_replacers.get(
             response.status, path.split("/")[1]
         )
         H.labels(
