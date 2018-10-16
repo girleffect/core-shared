@@ -11,7 +11,9 @@ try:
 except ImportError:
     UNPROTECTED_API_ENDPOINTS = set()
 
-
+# NOTE: If a flask middleware function returns None, normal processing of the
+# request will continue. Anything else will immediately return that as a
+# response.
 def auth_middleware(app, service_name):
 
     def before_request():
