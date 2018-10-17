@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+Change authentication middleware, to no longer be object based.
+
 1.2.0
 -----
 The `get_or_create()` function now takes an extra `defaults` argument which is used to provide values for fields that needs to be populated on
