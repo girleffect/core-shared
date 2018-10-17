@@ -36,6 +36,10 @@ def metric_middleware(app, service_name):
     :param app: The flask app to which to add the middleware.
     :param service_name: The name of the service the metrics fall under.
     """
+    denial_replacers = {
+        404: "not_found",
+        401: "unauthorized"
+    }
     H = Histogram(f"{service_name}_http_duration_seconds", "API duration",
           ["path_prefix", "method", "status"])
 
@@ -45,7 +49,9 @@ def metric_middleware(app, service_name):
     def stop_timer(response):
         resp_time = time.time() - flask_request.start_time
         path = flask_request.path.replace("/api/v1", "")
-        path_prefix = "not_found" if response.status == 404 else path.split("/")[1]
+        path_prefix = denial_replacers.get(
+            response.status, path.split("/")[1]
+        )
         H.labels(
             path_prefix=path_prefix,
             method=flask_request.method,
