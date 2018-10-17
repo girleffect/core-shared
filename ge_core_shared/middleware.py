@@ -11,27 +11,23 @@ try:
 except ImportError:
     UNPROTECTED_API_ENDPOINTS = set()
 
+# NOTE: If a flask middleware function returns None, normal processing of the
+# request will continue. Anything else will immediately return that as a
+# response.
+def auth_middleware(app, service_name):
 
-class AuthMiddleware(object):
-
-    def __init__(self, app):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        request = Request(environ)
+    def before_request():
+        request = flask_request
 
         # Some paths do not need an authorization key.
-        if request.path in UNPROTECTED_API_ENDPOINTS:
-            return self.app(environ, start_response)
+        if request.path not in UNPROTECTED_API_ENDPOINTS:
+            # Check if key is present and known.
+            key = request.headers.get(API_KEY_HEADER, None)
+            if not key or key not in ALLOWED_API_KEYS:
+                # Deny the API call.
+                return Response("Unauthorized", status="401")
 
-        # Check if key is present and known.
-        key = request.headers.get(API_KEY_HEADER, None)
-        if key and key in ALLOWED_API_KEYS:
-            return self.app(environ, start_response)
-
-        # Deny the API call.
-        response = Response("Unauthorized", status="401")
-        return response(environ, start_response)
+    app.before_request(before_request)
 
 
 def metric_middleware(app, service_name):
@@ -40,6 +36,10 @@ def metric_middleware(app, service_name):
     :param app: The flask app to which to add the middleware.
     :param service_name: The name of the service the metrics fall under.
     """
+    denial_replacers = {
+        404: "not_found",
+        401: "unauthorized"
+    }
     H = Histogram(f"{service_name}_http_duration_seconds", "API duration",
           ["path_prefix", "method", "status"])
 
@@ -49,8 +49,11 @@ def metric_middleware(app, service_name):
     def stop_timer(response):
         resp_time = time.time() - flask_request.start_time
         path = flask_request.path.replace("/api/v1", "")
+        path_prefix = denial_replacers.get(
+            response.status, path.split("/")[1]
+        )
         H.labels(
-            path_prefix=path.split("/")[1],
+            path_prefix=path_prefix,
             method=flask_request.method,
             status=response.status).observe(resp_time)
         return response

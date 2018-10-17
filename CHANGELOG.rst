@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.3.0
+-----
+#. Change authentication middleware, to no longer be object based.
+#. Collapse all 404 and 401 paths in the metric middleware.
+
 1.2.0
 -----
 The `get_or_create()` function now takes an extra `defaults` argument which is used to provide values for fields that needs to be populated on
