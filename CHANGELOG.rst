@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.3.0
+-----
 #. Change authentication middleware, to no longer be object based.
 #. Collapse all 404 and 401 paths in the metric middleware.
 
