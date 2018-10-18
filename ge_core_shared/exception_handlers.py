@@ -18,7 +18,15 @@ PG_ERROR_STATUS_CODE_MAP = {
 def db_exceptions(exception):
     logger.error(exception)
     db.session.rollback()
-    error_code = errorcodes.lookup(exception.orig.pgcode)
+    try:
+        error_code = errorcodes.lookup(exception.orig.pgcode)
+    except KeyError:
+        logger.error("Postgres error lookup, failed", exception)
+        return json.dumps(
+            {
+                "error": exception.orig.__repr__().replace("\n", " ")
+            }
+        ), 500
 
     # Postgres errors are split into different classes, the class is obtained
     # from the first 2 characters in the postgres error code. This is useful if
