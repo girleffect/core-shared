@@ -21,7 +21,6 @@ def db_exceptions(exception):
     try:
         error_code = errorcodes.lookup(exception.orig.pgcode)
     except KeyError:
-        logger.error("Postgres error lookup, failed", exception)
         return json.dumps(
             {
                 "error": exception.orig.__repr__().replace("\n", " ")
