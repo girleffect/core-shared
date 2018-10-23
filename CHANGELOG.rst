@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.3.1
+-----
 #. Update exception handler to handle the event where no pgcode is present.
 
 1.3.0
