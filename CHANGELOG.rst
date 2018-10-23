@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Update exception handler to handle the event where no pgcode is present.
+
 1.3.0
 -----
 #. Change authentication middleware, to no longer be object based.
