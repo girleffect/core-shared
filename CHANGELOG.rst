@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.3.2
+-----
 - Transformation omits None values.
 
 1.3.1
