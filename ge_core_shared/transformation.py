@@ -92,6 +92,12 @@ class Transformation(object):
                         LOGGER.error(msg)
                         raise RuntimeError(msg)
 
+                # Do not add a field to the result if the value is None. Models
+                # generated from the Swagger spec expect optional fields to be
+                # omitted.
+                if value is None:
+                    continue
+
                 result[mapping.output_field] = value
 
         return result
