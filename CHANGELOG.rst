@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.3.2
+-----
+- Transformation omits None values.
+
 1.3.1
 -----
 #. Update exception handler to handle the event where no pgcode is present.
