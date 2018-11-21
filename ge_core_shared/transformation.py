@@ -92,9 +92,9 @@ class Transformation(object):
                         LOGGER.error(msg)
                         raise RuntimeError(msg)
 
-                # If there is not value present, do not add the null value to
-                # the return values. Swagger spec generated models, do not
-                # expect null values and will raise errors accordingly.
+                # Do not add a field to the result if the value is None. Models
+                # generated from the Swagger spec expect optional fields to be
+                # omitted.
                 if value is None:
                     continue
 
