@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.3.3
+-----
+- Bugfix: Handle exceptions without an `orig` attribute.
+
 1.3.2
 -----
 - Transformation omits None values.
