@@ -18,6 +18,17 @@ PG_ERROR_STATUS_CODE_MAP = {
 def db_exceptions(exception):
     logger.error(exception)
     db.session.rollback()
+
+    # Some errors are not Postgresql specific and do not contain an "orig" field.
+    # Examples are StaleDataError, FlushError and ObjectDeletedError
+    # More here: https://github.com/sqlalchemy/sqlalchemy/blob/rel_1_2/lib/sqlalchemy/orm/exc.py
+    if not hasattr(exception, "orig"):
+        return json.dumps(
+            {
+                "error": str(exception).replace("\n", " ")
+            }
+        ), 500
+
     try:
         error_code = errorcodes.lookup(exception.orig.pgcode)
     except KeyError:
