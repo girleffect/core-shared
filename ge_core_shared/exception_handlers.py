@@ -25,7 +25,7 @@ def db_exceptions(exception):
     if not hasattr(exception, "orig"):
         return json.dumps(
             {
-                "error": str(exception).replace("\n", " ")
+                "error": "{}({})".format(type(exception), str(exception).replace("\n", " "))
             }
         ), 500
 
